@@ -2,6 +2,10 @@ package com.example.controllers;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,11 +54,18 @@ public class ProductoController {
     public ResponseEntity<List<Producto>> findAll(@RequestParam(name="page", required=false) Integer page,
     @RequestParam(name="size", required=false) Integer size){
 
-        List<Producto> productos = productoService.findAll();
-
-        ResponseEntity<List<Producto>> responseEntity = new ResponseEntity<List<Producto>>(productos, HttpStatus.OK);
-
-        return responseEntity;
+        List<Producto> productos;
+        Sort sort = Sort.by("name");
+        
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<Producto> pageProductos = productoService.findAll(pageable);
+            productos = pageProductos.getContent();
+        }else{
+            productos = productoService.findAll(sort);
+        }
+        
+        return new ResponseEntity<>(productos, HttpStatus.OK);
 
     }
 
