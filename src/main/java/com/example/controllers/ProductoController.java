@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -119,4 +121,45 @@ public class ProductoController {
         return responseEntity;
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> updateProduct(@Valid @RequestBody Producto producto, BindingResult results,
+    @PathVariable Integer id){
+
+        ResponseEntity<Map<String, Object>> responseEntity = null;
+        Map<String, Object> responseAsMap = new HashMap<>();
+
+        if (results.hasErrors()) {
+            List<String> mensajesError = new ArrayList<>();
+
+            List<ObjectError> objectErrors =  results.getAllErrors();
+
+            objectErrors.stream().forEach(o -> mensajesError.add(o.getDefaultMessage()));
+
+            responseAsMap.put("errores", mensajesError);
+            responseAsMap.put("producto", producto);
+            
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.BAD_REQUEST);
+
+            return responseEntity;
+        }
+        
+        try {
+            producto.setId(id);
+            Producto productoGuardado = productoService.save(producto);
+            String message = "El producto se ha actualizado exitoxamente";
+            
+            responseAsMap.put("mensaje", message);
+            responseAsMap.put("producto", productoGuardado);
+
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.CREATED);
+        } catch (DataAccessException e) {
+            String errorMessage = "El producto no se pudo guardar y la causa mas probable del error es: "
+            + e.getMostSpecificCause();
+
+            responseAsMap.put("error", errorMessage);
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
+        return responseEntity;
+    }
 }
