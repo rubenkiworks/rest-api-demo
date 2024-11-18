@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -94,7 +95,26 @@ public class ProductoController {
             responseAsMap.put("producto", producto);
             
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.BAD_REQUEST);
+
+            return responseEntity;
         }
+        
+        try {
+            Producto productoGuardado = productoService.save(producto);
+            String message = "El producto se ha creado exitoxamente";
+            
+            responseAsMap.put("mensaje", message);
+            responseAsMap.put("producto", productoGuardado);
+
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.CREATED);
+        } catch (DataAccessException e) {
+            String errorMessage = "El producto no se pudo guardar y la causa mas probable del error es: "
+            + e.getMostSpecificCause();
+
+            responseAsMap.put("error", errorMessage);
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
 
         return responseEntity;
     }
