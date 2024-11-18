@@ -162,4 +162,35 @@ public class ProductoController {
         
         return responseEntity;
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> findByIdProducto(@PathVariable Integer id){
+        ResponseEntity<Map<String, Object>> responseEntity = null;
+
+        var responseAsMap = new HashMap<String, Object>();
+
+        try {
+            Producto producto = productoService.findById(id);
+            if(producto != null){
+                String successMessage = "El producto se ha encontrado";
+                responseAsMap.put("mensaje", successMessage);
+                responseAsMap.put("producto", producto);
+
+                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
+            }else{
+                String notFoundMessage = "El producto con id " + id + " no se ha encontrado";
+                responseAsMap.put("mensaje", notFoundMessage);
+
+                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.NOT_FOUND);
+            }
+        } catch (DataAccessException e) {
+            String errorMessage = "Error grave y la causa mas probable del error es: "
+            + e.getMostSpecificCause();
+
+            responseAsMap.put("error", errorMessage);
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return responseEntity;
+    }
 }
