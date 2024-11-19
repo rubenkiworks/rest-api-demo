@@ -86,7 +86,7 @@ public class ProductoController {
     @Transactional
     public ResponseEntity<Map<String, Object>> saveProducto(@Valid @RequestBody Producto producto, BindingResult results){
         
-        ResponseEntity<Map<String, Object>> responseEntity;
+        ResponseEntity<Map<String, Object>> responseEntity = null;
         Map<String, Object> responseAsMap = new HashMap<>();
 
         if (results.hasErrors()) {
@@ -113,11 +113,13 @@ public class ProductoController {
 
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.CREATED);
         } catch (DataAccessException e) {
-            String errorMessage = "El producto no se pudo guardar y la causa mas probable del error es: "
-            + e.getMostSpecificCause();
+            Throwable error = e.getMostSpecificCause();
 
-            responseAsMap.put("error", errorMessage);
-            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            if (error != null) {
+                String errorMessage = "No ha podido ser registrado el producto cuyo id es: , y la causa mas probable es: " + error;
+                responseAsMap.put("mensaje", errorMessage);
+                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
         
 
@@ -129,7 +131,7 @@ public class ProductoController {
     public ResponseEntity<Map<String, Object>> updateProduct(@Valid @RequestBody Producto producto, BindingResult results,
     @PathVariable Integer id){
 
-        ResponseEntity<Map<String, Object>> responseEntity;
+        ResponseEntity<Map<String, Object>> responseEntity = null;
         Map<String, Object> responseAsMap = new HashMap<>();
 
         if (results.hasErrors()) {
@@ -157,11 +159,14 @@ public class ProductoController {
 
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.CREATED);
         } catch (DataAccessException e) {
-            String errorMessage = "El producto no se pudo guardar y la causa mas probable del error es: "
-            + e.getMostSpecificCause();
+            Throwable error = e.getMostSpecificCause();
 
-            responseAsMap.put("error", errorMessage);
-            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            if (error != null) {
+                String errorMessage = "No ha podido ser actualizado el producto cuyo id es: " + id
+                + ", y la causa mas probable es: " + error;
+                responseAsMap.put("mensaje", errorMessage);
+                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
         
         return responseEntity;
@@ -169,7 +174,7 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> findByIdProducto(@PathVariable Integer id){
-        ResponseEntity<Map<String, Object>> responseEntity;
+        ResponseEntity<Map<String, Object>> responseEntity = null;
 
         var responseAsMap = new HashMap<String, Object>();
 
@@ -188,11 +193,14 @@ public class ProductoController {
                 responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.NOT_FOUND);
             }
         } catch (DataAccessException e) {
-            String errorMessage = "Error grave y la causa mas probable del error es: "
-            + e.getMostSpecificCause();
+            Throwable error = e.getMostSpecificCause();
 
-            responseAsMap.put("error", errorMessage);
-            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            if (error != null) {
+                String errorMessage = "No ha podido ser encontrado el producto cuyo id es: " + id
+                + ", y la causa mas probable es: " + error;
+                responseAsMap.put("mensaje", errorMessage);
+                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
 
         return responseEntity;
@@ -201,7 +209,7 @@ public class ProductoController {
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Map<String, Object>> deleteProducto(@PathVariable Integer id){
-        ResponseEntity<Map<String, Object>> responseEntity;
+        ResponseEntity<Map<String, Object>> responseEntity = null;
 
         var responseAsMap = new HashMap<String, Object>();
 
@@ -212,11 +220,14 @@ public class ProductoController {
 
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
         } catch (DataAccessException e) {
-            String errorMessage = "Error grave y la causa mas probable del error es: "
-            + e.getMostSpecificCause();
+            Throwable error = e.getMostSpecificCause();
 
-            responseAsMap.put("error", errorMessage);
-            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            if (error != null) {
+                String errorMessage = "No ha podido ser eliminado el producto cuyo id es: " + id
+                + ", y la causa mas probable es: " + error;
+                responseAsMap.put("mensaje", errorMessage);
+                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
 
         return responseEntity;
