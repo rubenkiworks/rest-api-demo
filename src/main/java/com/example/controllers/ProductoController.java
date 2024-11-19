@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.entities.Producto;
 import com.example.services.ProductoService;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -81,9 +83,10 @@ public class ProductoController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<Map<String, Object>> saveProducto(@Valid @RequestBody Producto producto, BindingResult results){
         
-        ResponseEntity<Map<String, Object>> responseEntity = null;
+        ResponseEntity<Map<String, Object>> responseEntity;
         Map<String, Object> responseAsMap = new HashMap<>();
 
         if (results.hasErrors()) {
@@ -122,10 +125,11 @@ public class ProductoController {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<Map<String, Object>> updateProduct(@Valid @RequestBody Producto producto, BindingResult results,
     @PathVariable Integer id){
 
-        ResponseEntity<Map<String, Object>> responseEntity = null;
+        ResponseEntity<Map<String, Object>> responseEntity;
         Map<String, Object> responseAsMap = new HashMap<>();
 
         if (results.hasErrors()) {
@@ -165,7 +169,7 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> findByIdProducto(@PathVariable Integer id){
-        ResponseEntity<Map<String, Object>> responseEntity = null;
+        ResponseEntity<Map<String, Object>> responseEntity;
 
         var responseAsMap = new HashMap<String, Object>();
 
@@ -183,6 +187,30 @@ public class ProductoController {
 
                 responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.NOT_FOUND);
             }
+        } catch (DataAccessException e) {
+            String errorMessage = "Error grave y la causa mas probable del error es: "
+            + e.getMostSpecificCause();
+
+            responseAsMap.put("error", errorMessage);
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return responseEntity;
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> deleteProducto(@PathVariable Integer id){
+        ResponseEntity<Map<String, Object>> responseEntity;
+
+        var responseAsMap = new HashMap<String, Object>();
+
+        try {
+            productoService.delete(productoService.findById(id));
+            String successMessage = "El producto con id " + id + " ha sido eliminado";
+            responseAsMap.put("mensaje", successMessage);
+
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
         } catch (DataAccessException e) {
             String errorMessage = "Error grave y la causa mas probable del error es: "
             + e.getMostSpecificCause();
