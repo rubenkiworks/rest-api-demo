@@ -49,6 +49,9 @@ public class Producto implements Serializable{
     @Min(value=0, message="El precio no puede ser negativo")
     private double price;
 
+    @NotNull(message="La imagen del producto es requerida")
+    private String imagenProducto;
+
     @NotNull(message="La presentacion es requerida")
     @ManyToOne(fetch=FetchType.LAZY)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +23,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.entities.Producto;
+import com.example.model.FileUploadResponse;
 import com.example.services.ProductoService;
+import com.example.utilities.FileUploadUtil;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -46,6 +51,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductoController {
 
     private final ProductoService productoService;
+    private final FileUploadUtil fileUploadUtil;
     /**
      * El metodo siguiente va a responder a una peticion (request) del tipo
      * 
@@ -82,48 +88,83 @@ public class ProductoController {
 
     }
 
-    @PostMapping
+    @PostMapping(consumes="multipart/form-data")
     @Transactional
-    public ResponseEntity<Map<String, Object>> saveProducto(@Valid @RequestBody Producto producto, BindingResult results){
-        
-        ResponseEntity<Map<String, Object>> responseEntity = null;
+    public ResponseEntity<Map<String, Object>> saveProducto(
+        @Valid @RequestPart(name="producto") Producto producto, BindingResult results,
+            @RequestPart(name="file") MultipartFile file) throws IOException {
+
+        ResponseEntity<Map<String, Object>> responseEntity;
         Map<String, Object> responseAsMap = new HashMap<>();
 
+        // Lo primero que comprobamos es si hay errores en el producto recibido
         if (results.hasErrors()) {
+
             List<String> mensajesError = new ArrayList<>();
 
-            List<ObjectError> objectErrors =  results.getAllErrors();
+            List<ObjectError> objectErrors = results.getAllErrors();
 
-            objectErrors.stream().forEach(o -> mensajesError.add(o.getDefaultMessage()));
+            objectErrors.stream().forEach(objectError -> mensajesError.add(objectError.getDefaultMessage()));
 
             responseAsMap.put("errores", mensajesError);
             responseAsMap.put("producto", producto);
-            
+
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.BAD_REQUEST);
 
             return responseEntity;
+
         }
-        
+
+        // Si no hay errores persistimos el producto y devolvemos informacion al
+        // respecto.
+        // Comprobando, previamente si me han enviado la imagen del producto, es decir,
+        // el file en el cuerpo de la peticion
+        if (!file.isEmpty()) {
+
+            // Para gestionar el archivo recibido, vamos a crear un componente en un paquete llamado 
+            // com.example.utilities, y en dicho componente crearemos un metodo que se encargara de 
+            // guardar el archivo en una carpeta especifica del servidor, y devolver un codigo de 8 
+            // caracteres alfanumerico (letras y numeros) generados aleatoriamente
+            String fileCode = fileUploadUtil.saveFile(file.getOriginalFilename(), file);
+
+            // Asociar el nombre del archivo recibido con la propiedad imagenProducto de la entidad 
+            // Producto
+            producto.setImagenProducto(fileCode + "-" + file.getOriginalFilename());
+
+            // Hay que proporcionar informacion respecto a la imagen guardada
+            // para lo cual, en un paquete model (com.example.model), crearemos un record
+            // FileUploadResponse
+            // FileUploadResponse fileUploadResponse = new FileUploadResponse(
+            //     fileCode + "-" + file.getOriginalFilename(), 
+            //     "/productos/fileDownload/" + fileCode ,
+            //     file.getSize());
+
+            // Con lombok creamos el objeto FileUploadResponse
+            FileUploadResponse fileUploadResponse = FileUploadResponse.builder()
+                .fileName(fileCode + "-" + file.getOriginalFilename())
+                .downloadURI("/productos/fileDownload/" + fileCode)
+                .fileSize(file.getSize())
+                .build();
+
+            responseAsMap.put("Info de la imagen", fileUploadResponse);
+
+        }
+
         try {
             Producto productoGuardado = productoService.save(producto);
-            String message = "El producto se ha creado exitoxamente";
-            
+            String message = "El producto se ha creado exitosamente";
             responseAsMap.put("mensaje", message);
             responseAsMap.put("producto", productoGuardado);
-
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.CREATED);
         } catch (DataAccessException e) {
-            Throwable error = e.getMostSpecificCause();
-
-            if (error != null) {
-                String errorMessage = "No ha podido ser registrado el producto cuyo id es: , y la causa mas probable es: " + error;
-                responseAsMap.put("mensaje", errorMessage);
-                responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            String errorMessage = "El producto no se pudo persistir y "
+                    + "la causa mas probable del error es: " + e.getMostSpecificCause().getMessage();
+            responseAsMap.put("error: ", errorMessage);
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
 
         return responseEntity;
+
     }
 
     @PutMapping("/{id}")

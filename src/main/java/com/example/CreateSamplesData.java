@@ -10,27 +10,25 @@ import com.example.services.PresentacionService;
 import com.example.services.ProductoService;
 
 @Configuration
-public class CreateSampleData {
+public class CreateSamplesData {
 
     @Bean
     public CommandLineRunner samplesData(ProductoService productoService,
             PresentacionService presentacionService) {
 
         return args -> {
+
             presentacionService.save(
                     Presentacion.builder()
                             .id(1)
                             .name("unidad")
-                            .build()
-            );
+                            .build());
 
             presentacionService.save(
                     Presentacion.builder()
                             .id(2)
                             .name("decena")
-                            .build()
-            );
-
+                            .build());
             productoService.save(
                     Producto.builder()
                             .id(1)
@@ -39,6 +37,7 @@ public class CreateSampleData {
                             .price(3.75)
                             .stock(10)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -48,6 +47,7 @@ public class CreateSampleData {
                             .price(1)
                             .stock(10)
                             .presentacion(presentacionService.findById(2))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -57,6 +57,7 @@ public class CreateSampleData {
                             .price(4.5)
                             .stock(5)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -66,6 +67,7 @@ public class CreateSampleData {
                             .price(15)
                             .stock(5)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -75,6 +77,7 @@ public class CreateSampleData {
                             .price(40)
                             .stock(5)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -84,6 +87,7 @@ public class CreateSampleData {
                             .price(15)
                             .stock(5)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -93,6 +97,7 @@ public class CreateSampleData {
                             .price(1.50)
                             .stock(4)
                             .presentacion(presentacionService.findById(2))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -102,6 +107,7 @@ public class CreateSampleData {
                             .price(2)
                             .stock(10)
                             .presentacion(presentacionService.findById(2))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -111,6 +117,7 @@ public class CreateSampleData {
                             .price(40)
                             .stock(5)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -120,6 +127,7 @@ public class CreateSampleData {
                             .price(10)
                             .stock(10)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
             productoService.save(
                     Producto.builder()
@@ -129,8 +137,9 @@ public class CreateSampleData {
                             .price(5)
                             .stock(5)
                             .presentacion(presentacionService.findById(1))
+                            .imagenProducto("test.jpge")
                             .build());
-
         };
     }
+
 }
