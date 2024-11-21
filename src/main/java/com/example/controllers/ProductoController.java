@@ -303,4 +303,28 @@ public class ProductoController {
         .body(resource);
     }
 
+    @GetMapping("/fileDownloadByIdProducto/{idProducto}")
+    public ResponseEntity<?> downloadFileByEmpleadoId(@PathVariable int idProducto) throws IOException{
+        Resource resource;
+
+        try {
+            resource = fileDownloadUtil.getFileAsResourceByIdProducto(idProducto);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+        if(resource == null){
+            return new ResponseEntity<>("Fichero no encontrado", HttpStatus.NOT_FOUND);
+        }
+
+        String contentType = "application/octet-stream";
+        String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
+
+
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+        .contentType(MediaType.parseMediaType(contentType))
+        .body(resource);
+    }
+
 }
