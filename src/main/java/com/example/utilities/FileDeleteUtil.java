@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
@@ -17,16 +16,10 @@ public class FileDeleteUtil {
         
         Path dirPath = Paths.get("Files-Upload");
 
-        var responseAsMap = new HashMap<String, Object>();
-
         try {
-            Files.list(dirPath).forEach(file -> {
-                if (file.getFileName().toString().startsWith(fileCode)) {
-                    foundFile = file;
-
-                    return;
-                }
-            });
+            foundFile = Files.list(dirPath)
+            .filter(file -> file.getFileName().toString().startsWith(fileCode))
+            .findFirst().get();
         } catch (IOException e) {
             throw new IOException("Error fatal buscando el fichero", e);
         }

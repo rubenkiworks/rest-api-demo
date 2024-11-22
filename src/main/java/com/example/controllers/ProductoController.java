@@ -256,13 +256,23 @@ public class ProductoController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<Map<String, Object>> deleteProducto(@PathVariable Integer id){
+    public ResponseEntity<Map<String, Object>> deleteProducto(@PathVariable Integer id) throws IOException{
         ResponseEntity<Map<String, Object>> responseEntity = null;
 
         var responseAsMap = new HashMap<String, Object>();
 
         try {
-            productoService.delete(productoService.findById(id));
+            Producto producto = productoService.findById(id);
+
+            String imagenProducto = producto.getImagenProducto();
+
+            String fileCode = imagenProducto.split("-")[0];
+
+            if(fileCode != null){
+                fileDeleteUtil.deleteFile(fileCode);
+            }
+
+            productoService.delete(producto);
             String successMessage = "El producto con id " + id + " ha sido eliminado";
             responseAsMap.put("mensaje", successMessage);
 

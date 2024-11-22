@@ -52,13 +52,9 @@ public class FileDownloadUtil {
         Path dirPath = Paths.get("Files-Upload");
 
         try {
-            Files.list(dirPath).forEach(file -> {
-                if (file.getFileName().toString().startsWith(fileCode)) {
-                    foundFile = file;
-
-                    return;
-                }
-            });
+            foundFile = Files.list(dirPath)
+            .filter(file -> file.getFileName().toString().startsWith(fileCode))
+            .findFirst().get();
         } catch (IOException e) {
             throw new IOException("Error fatal buscando el fichero", e);
         }
