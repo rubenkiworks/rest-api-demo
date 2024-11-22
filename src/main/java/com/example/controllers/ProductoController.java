@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.entities.Producto;
 import com.example.model.FileUploadResponse;
 import com.example.services.ProductoService;
+import com.example.utilities.FileDeleteUtil;
 import com.example.utilities.FileDownloadUtil;
 import com.example.utilities.FileUploadUtil;
 
@@ -57,6 +58,7 @@ public class ProductoController {
     private final ProductoService productoService;
     private final FileUploadUtil fileUploadUtil;
     private final FileDownloadUtil fileDownloadUtil;
+    private final FileDeleteUtil fileDeleteUtil;
     /**
      * El metodo siguiente va a responder a una peticion (request) del tipo
      * 
@@ -325,6 +327,27 @@ public class ProductoController {
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
         .contentType(MediaType.parseMediaType(contentType))
         .body(resource);
+    }
+
+    @GetMapping("/deleteFile/{fileCode}")
+    public ResponseEntity<?> deleteFile(@PathVariable String fileCode) throws IOException{
+        ResponseEntity<Map<String, Object>> responseEntity;
+
+        var responseAsMap = new HashMap<String, Object>();
+
+        String responseDeleteMethod;
+
+        try {
+            responseDeleteMethod = fileDeleteUtil.deleteFile(fileCode);
+
+            responseAsMap.put("mensaje", responseDeleteMethod);
+
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+        return responseEntity;
     }
 
 }
