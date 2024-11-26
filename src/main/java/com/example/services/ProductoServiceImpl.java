@@ -48,4 +48,9 @@ public class ProductoServiceImpl implements ProductoService{
         return productoDao.findAll();
     }
 
+    @Override
+    public Page<Producto> findByStock(int stock, Pageable pageable) {
+        return productoDao.findByStock(stock, pageable);
+    }
+
 }

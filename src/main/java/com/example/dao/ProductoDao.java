@@ -15,7 +15,7 @@ import com.example.entities.Producto;
 public interface ProductoDao extends JpaRepository<Producto, Integer>{
 
     /**
-    * Vamos a necesitar tres metodos personalizados,
+    * Vamos a crear tres metodos personalizados,
     * que traigan la presentacion en una sola consulta, que es mas eficiente,
     * que primero traer el producto y luego una subconsulta para traer la presentacion
     * que es lo que por defecto ocurriria por esta establecido al fetchType a LAZY
@@ -24,10 +24,11 @@ public interface ProductoDao extends JpaRepository<Producto, Integer>{
     * 2. Recupera los productos ordenados, sin paginacion
     * 3. Dado el id de un producto recupera el producto con su presentacion correspondiente
     * 
-    * Para ello vamos a utilizar el lenguaje HQL (Hybernate Query Language), es muy similar a SQL pero
+    * Para ello vamos a utilizar el lenguaje JPQL (Java Persistence Query Language), es muy similar a SQL pero
     * lo que se consulta son las entidades, no las tablas.
     * 
-    * Y no se puede utilizar consultas de SQL nativo porque no soportan la paginacion y el ordenamiento
+    * Y no se puede utilizar consultas de SQL nativo porque no soportan la paginacion y el ordenamiento directamente
+    
     */
 
     @Query(value="select p from Producto p left join fetch p.presentacion", 
@@ -41,4 +42,7 @@ public interface ProductoDao extends JpaRepository<Producto, Integer>{
 
     @Query(value="select p from Producto p left join fetch p.presentacion where p.id = :id")
     public Producto findById(int id);
+
+    @Query(value="select p from Producto p left join fetch p.presentacion where p.stock = :stock order by p.price")
+    public Page<Producto> findByStock(int stock, Pageable pageable);
 }

@@ -15,4 +15,5 @@ public interface ProductoService {
     public Producto save(Producto producto);
     public void delete(Producto producto);
     public List<Producto> findAll();
+    public Page<Producto> findByStock(int stock, Pageable pageable);
 }

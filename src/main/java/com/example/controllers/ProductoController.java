@@ -78,12 +78,17 @@ public class ProductoController {
      */ 
     @GetMapping
     public ResponseEntity<List<Producto>> findAll(@RequestParam(name="page", required=false) Integer page,
-    @RequestParam(name="size", required=false) Integer size){
+    @RequestParam(name="size", required=false) Integer size, @RequestParam(required=false) Boolean metodoStock){
 
         List<Producto> productos;
         Sort sort = Sort.by("name");
         
-        if (page != null && size != null) {
+        if (metodoStock != null){
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Producto> pageProductos = productoService.findByStock(5, pageable);
+            productos = pageProductos.getContent();
+        }
+        else if (page != null && size != null) {
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<Producto> pageProductos = productoService.findAll(pageable);
             productos = pageProductos.getContent();
