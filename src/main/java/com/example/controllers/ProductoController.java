@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.entities.Producto;
 import com.example.model.FileUploadResponse;
+import com.example.services.PresentacionService;
 import com.example.services.ProductoService;
 import com.example.utilities.FileDeleteUtil;
 import com.example.utilities.FileDownloadUtil;
@@ -59,6 +62,7 @@ public class ProductoController {
     private final FileUploadUtil fileUploadUtil;
     private final FileDownloadUtil fileDownloadUtil;
     private final FileDeleteUtil fileDeleteUtil;
+    private final PresentacionService presentacionService;
     /**
      * El metodo siguiente va a responder a una peticion (request) del tipo
      * 
@@ -365,4 +369,29 @@ public class ProductoController {
         return responseEntity;
     }
 
+    @GetMapping("/max-stock-product-for-presentation/{presentacion}")
+    public ResponseEntity<Map<String, Object>> maxProductWithUnitPresentation(@PathVariable(required=false) Integer presentacion){
+        ResponseEntity<Map<String, Object>> responseEntity;
+
+        List<Producto> productos;
+        Sort sort = Sort.by(Direction.ASC,"name");
+
+        var responseAsMap = new HashMap<String, Object>();
+        try {
+            productos = productoService.findAll(sort);
+
+            Producto producto = productos.stream()
+            .filter(p -> p.getPresentacion().equals(presentacionService.findById(presentacion)))
+            .max((p1, p2) -> Integer.valueOf(p1.getStock()).compareTo(p2.getStock()))
+            .get();
+
+            responseAsMap.put("mensaje", "El producto con mayor stock de la categoria recibida es: ");
+            responseAsMap.put("producto", producto);
+
+            responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return responseEntity;
+    }
 }
