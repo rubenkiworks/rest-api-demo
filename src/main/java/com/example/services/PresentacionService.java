@@ -8,4 +8,5 @@ public interface PresentacionService {
     public List<Presentacion> findAll();
     public void save(Presentacion presentacion);
     public Presentacion findById(int id);
+    public Presentacion findByName(String name);
 }

@@ -369,24 +369,28 @@ public class ProductoController {
         return responseEntity;
     }
 
-    @GetMapping("/max-stock-product-for-presentation/{presentacion}")
-    public ResponseEntity<Map<String, Object>> maxProductWithUnitPresentation(@PathVariable(required=false) Integer presentacion){
+    @GetMapping("/product-for-presentation")
+    public ResponseEntity<Map<String, Object>> productForPresentation(
+        @RequestParam(required=false) String presentacion,
+        @RequestParam(required=false) Integer stock
+    ){
         ResponseEntity<Map<String, Object>> responseEntity;
 
         List<Producto> productos;
-        Sort sort = Sort.by(Direction.ASC,"name");
 
         var responseAsMap = new HashMap<String, Object>();
         try {
-            productos = productoService.findAll(sort);
+            productos = productoService.findAll();
 
-            Producto producto = productos.stream()
-            .filter(p -> p.getPresentacion().equals(presentacionService.findById(presentacion)))
-            .max((p1, p2) -> Integer.valueOf(p1.getStock()).compareTo(p2.getStock()))
-            .get();
+            List<Producto> productosFiltrados = productos.stream()
+            .filter(p -> p.getPresentacion().equals(presentacionService.findByName(presentacion))
+                && p.getStock() < stock).collect(Collectors.toList());
+            //.max((p1, p2) -> Integer.valueOf(p1.getStock()).compareTo(p2.getStock()))
+            
 
-            responseAsMap.put("mensaje", "El producto con mayor stock de la categoria recibida es: ");
-            responseAsMap.put("producto", producto);
+            responseAsMap.put("mensaje", "El listado de productos con un stock menor de "
+            + stock + "stock de la presentacion recibida (" + presentacion + ") es: ");
+            responseAsMap.put("productos", productosFiltrados);
 
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
         } catch (Exception e) {

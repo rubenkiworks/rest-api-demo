@@ -30,4 +30,9 @@ public class PresentacionServiceImpl implements PresentacionService{
         return presentacionDao.findById(id).get();
     }
 
+    @Override
+    public Presentacion findByName(String name) {
+        return presentacionDao.findByName(name);
+    }
+
 }
