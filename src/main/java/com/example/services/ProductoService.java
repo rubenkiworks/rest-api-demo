@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.example.entities.Presentacion;
 import com.example.entities.Producto;
 
 public interface ProductoService {
@@ -16,4 +17,5 @@ public interface ProductoService {
     public void delete(Producto producto);
     public List<Producto> findAll();
     public Page<Producto> findByStock(int stock, Pageable pageable);
+    public List<Producto> findByPresentacionAndStockLessThan(Presentacion presentacion, int stock);
 }

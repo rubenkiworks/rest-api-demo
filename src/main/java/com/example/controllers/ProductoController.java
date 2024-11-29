@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import com.example.entities.Producto;
 import com.example.model.FileUploadResponse;
 import com.example.services.PresentacionService;
@@ -380,22 +381,40 @@ public class ProductoController {
 
         var responseAsMap = new HashMap<String, Object>();
         try {
-            productos = productoService.findAll();
+            /*productos = productoService.findAll();
 
             List<Producto> productosFiltrados = productos.stream()
             .filter(p -> p.getPresentacion().equals(presentacionService.findByName(presentacion))
                 && p.getStock() < stock).collect(Collectors.toList());
             //.max((p1, p2) -> Integer.valueOf(p1.getStock()).compareTo(p2.getStock()))
             
+            */
+
+            productos = productoService.findByPresentacionAndStockLessThan(
+                presentacionService.findByName(presentacion), stock);
 
             responseAsMap.put("mensaje", "El listado de productos con un stock menor de "
             + stock + "stock de la presentacion recibida (" + presentacion + ") es: ");
-            responseAsMap.put("productos", productosFiltrados);
+            responseAsMap.put("productos", productos);
 
             responseEntity = new ResponseEntity<>(responseAsMap, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
         return responseEntity;
+    }
+
+    public String prueba(){
+        String pruebaVar = "43434343a";
+        var countLetters = 0;
+        for (int i = 0; i < pruebaVar.length(); i++) {
+            if(Character.isLetter(pruebaVar.charAt(i)))
+                countLetters++;
+        }
+
+        if(countLetters>0)
+            return "Es una cadena alfanumerica";
+        else
+            return "Es una cadena numerica";
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.dao.ProductoDao;
+import com.example.entities.Presentacion;
 import com.example.entities.Producto;
 
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,12 @@ public class ProductoServiceImpl implements ProductoService{
     @Override
     public Page<Producto> findByStock(int stock, Pageable pageable) {
         return productoDao.findByStock(stock, pageable);
+    }
+
+    @Override
+    public List<Producto> findByPresentacionAndStockLessThan(Presentacion presentacion, int stock) {
+        
+        return productoDao.findByPresentacionAndStockLessThan(presentacion, stock);
     }
 
 }

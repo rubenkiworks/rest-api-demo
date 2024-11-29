@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.example.entities.Presentacion;
 import com.example.entities.Producto;
 
 @Repository
@@ -45,4 +46,6 @@ public interface ProductoDao extends JpaRepository<Producto, Integer>{
 
     @Query(value="select p from Producto p left join fetch p.presentacion where p.stock = :stock order by p.price")
     public Page<Producto> findByStock(int stock, Pageable pageable);
+
+    List<Producto> findByPresentacionAndStockLessThan(Presentacion presentacion, int stock);
 }
