@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,6 +83,7 @@ public class ProductoController {
      * https://www.w3schools.com/tags/ref_httpmessages.asp
      */ 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<List<Producto>> findAll(@RequestParam(name="page", required=false) Integer page,
     @RequestParam(name="size", required=false) Integer size, @RequestParam(required=false) Boolean metodoStock){
 
@@ -107,6 +109,7 @@ public class ProductoController {
 
     @PostMapping(consumes="multipart/form-data")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> saveProducto(
         @Valid @RequestPart(name="producto") Producto producto, BindingResult results,
             @RequestPart(name="file") MultipartFile file) throws IOException {
@@ -186,6 +189,7 @@ public class ProductoController {
 
     @PutMapping("/{id}")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateProduct(@Valid @RequestBody Producto producto, BindingResult results,
     @PathVariable Integer id){
 
@@ -231,6 +235,7 @@ public class ProductoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> findByIdProducto(@PathVariable Integer id){
         ResponseEntity<Map<String, Object>> responseEntity = null;
 
@@ -266,6 +271,7 @@ public class ProductoController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteProducto(@PathVariable Integer id) throws IOException{
         ResponseEntity<Map<String, Object>> responseEntity = null;
 
@@ -302,6 +308,7 @@ public class ProductoController {
     }
 
     @GetMapping("/fileDownload/{fileCode}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> downloadFile(@PathVariable String fileCode) throws IOException{
         Resource resource;
 
@@ -326,6 +333,7 @@ public class ProductoController {
     }
 
     @GetMapping("/fileDownloadByIdProducto/{idProducto}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> downloadFileByEmpleadoId(@PathVariable int idProducto) throws IOException{
         Resource resource;
 
@@ -350,6 +358,7 @@ public class ProductoController {
     }
 
     @GetMapping("/deleteFile/{fileCode}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteFile(@PathVariable String fileCode) throws IOException{
         ResponseEntity<Map<String, Object>> responseEntity;
 
@@ -371,6 +380,7 @@ public class ProductoController {
     }
 
     @GetMapping("/product-for-presentation")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> productForPresentation(
         @RequestParam(required=false) String presentacion,
         @RequestParam(required=false) Integer stock

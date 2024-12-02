@@ -8,9 +8,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="roles")
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 
 public class Role {
 
@@ -20,31 +28,6 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     @Column(length=20)
-    private ERol nombre;
+    private ERole name;
 
-    public Role() {
-    }
-
-    public Role(Integer id, ERol nombre) {
-        this.id = id;
-        this.nombre = nombre;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public ERol getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(ERol nombre) {
-        this.nombre = nombre;
-    }
-
-    
 }

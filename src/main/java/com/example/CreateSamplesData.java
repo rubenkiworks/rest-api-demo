@@ -8,13 +8,16 @@ import com.example.entities.Presentacion;
 import com.example.entities.Producto;
 import com.example.services.PresentacionService;
 import com.example.services.ProductoService;
+import com.example.springjwt.models.ERole;
+import com.example.springjwt.models.Role;
+import com.example.springjwt.repository.RoleRepository;
 
 @Configuration
 public class CreateSamplesData {
 
     @Bean
     public CommandLineRunner samplesData(ProductoService productoService,
-            PresentacionService presentacionService) {
+            PresentacionService presentacionService, RoleRepository roleRepository) {
 
         return args -> {
 
@@ -139,6 +142,11 @@ public class CreateSamplesData {
                             .presentacion(presentacionService.findById(1))
                             .imagenProducto("test.jpge")
                             .build());
+
+                // Agregamos los roles de USER y ADMIN
+                        roleRepository.save(new Role(1, ERole.ROLE_ADMIN));
+
+                        roleRepository.save(new Role(2, ERole.ROLE_USER));
         };
     }
 
